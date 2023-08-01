@@ -1,8 +1,6 @@
 package az.orient.bank.dto.request;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.Date;
 @Data
@@ -17,4 +15,5 @@ public class ReqCustomer {
     private Date dob;
     private String pin;
     private String seria;
+    private ReqToken reqToken;
 }

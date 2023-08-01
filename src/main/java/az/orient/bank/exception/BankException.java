@@ -3,13 +3,13 @@ package az.orient.bank.exception;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
-public class BankException extends RuntimeException{
-    private  Integer code;
+public class BankException extends RuntimeException {
+    private Integer code;
 
-    public BankException(Integer code, String message){
+    public BankException(Integer code, String message) {
 
         super(message);
-        this.code=code;
+        this.code = code;
     }
 
     public Integer getCode() {

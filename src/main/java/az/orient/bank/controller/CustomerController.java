@@ -1,6 +1,7 @@
 package az.orient.bank.controller;
 
 import az.orient.bank.dto.request.ReqCustomer;
+import az.orient.bank.dto.request.ReqToken;
 import az.orient.bank.dto.response.RespCustomer;
 import az.orient.bank.dto.response.Response;
 import az.orient.bank.service.CustomerService;
@@ -14,25 +15,30 @@ import java.util.List;
 @RequestMapping("customer")
 public class CustomerController {
     private final CustomerService customerService;
-    @GetMapping("GetCustomerList")
-    public Response<List<RespCustomer>> getCustomerList(){
-        return customerService.getCustomerList();
+
+    @PostMapping("/GetCustomerList")
+    public Response<List<RespCustomer>> getCustomerList(@RequestBody ReqToken reqToken) {
+        return customerService.getCustomerList(reqToken);
     }
-    @GetMapping("GetCustomerById/{id}")
-    public  Response<RespCustomer> getCustomerListById(@PathVariable Long id){
-        return customerService.getCustomerById(id);
+
+    @PostMapping("/GetCustomerById")
+    public Response<RespCustomer> getCustomerListById(@RequestBody ReqCustomer reqCustomer) {
+        return customerService.getCustomerById(reqCustomer);
     }
+
     @PostMapping("/AddCustomer")
-    public Response addCustomer(@RequestBody ReqCustomer reqCustomer){
+    public Response addCustomer(@RequestBody ReqCustomer reqCustomer) {
         return customerService.addCustomer(reqCustomer);
     }
+
     @PutMapping("/UpdateCustomer")
-    public Response updateCustomer(@RequestBody ReqCustomer reqCustomer){
+    public Response updateCustomer(@RequestBody ReqCustomer reqCustomer) {
         return customerService.updateCustomer(reqCustomer);
     }
-    @PutMapping("/DeleteCustomer/{customerId}")
-    public Response deleteCustomer(@PathVariable Long customerId) {
-        return customerService.deleteCustomer(customerId);
+
+    @PutMapping("/DeleteCustomer")
+    public Response deleteCustomer(@RequestBody ReqCustomer reqCustomer) {
+        return customerService.deleteCustomer(reqCustomer);
     }
 }
 
