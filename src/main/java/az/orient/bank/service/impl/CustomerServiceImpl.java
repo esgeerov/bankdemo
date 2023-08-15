@@ -1,19 +1,24 @@
-package az.orient.bank.service;
+package az.orient.bank.service.impl;
 
 import az.orient.bank.dto.request.ReqCustomer;
+import az.orient.bank.dto.request.ReqToken;
 import az.orient.bank.dto.response.RespCustomer;
 import az.orient.bank.dto.response.RespStatus;
 import az.orient.bank.dto.response.Response;
 import az.orient.bank.entity.Customers;
+import az.orient.bank.entity.User;
+import az.orient.bank.entity.UserToken;
 import az.orient.bank.enums.EnumAviableStatus;
 import az.orient.bank.exception.BankException;
 import az.orient.bank.exception.ExceptionConstants;
 import az.orient.bank.repository.CustomerRepository;
-import lombok.Data;
+import az.orient.bank.repository.UserRepository;
+import az.orient.bank.repository.UserTokenRepository;
+import az.orient.bank.service.CustomerService;
+import az.orient.bank.util.Utility;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,12 +27,16 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CustomerServiceImpl implements CustomerService {
     private final CustomerRepository customerRepository;
+    private final Utility utility;
 
     @Override
-    public Response<List<RespCustomer>> getCustomerList() {
+    public Response<List<RespCustomer>> getCustomerList(ReqToken reqToken) {
         Response<List<RespCustomer>> response = new Response<>();
-        List<RespCustomer> respCustomerList = new ArrayList<>();
+        List<RespCustomer> respCustomerList = null;
         try {
+            utility.checkToken(reqToken.getToken(), reqToken.getUserId());
+
+
             List<Customers> customersList = customerRepository.findAllByActive(EnumAviableStatus.ACTIVE.value);
             if (customersList.isEmpty()) {
                 throw new BankException(ExceptionConstants.CUSTOMER_NOT_FOUND, "Customer not found");
@@ -47,10 +56,14 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public Response<RespCustomer> getCustomerById(Long customerId) {
+    public Response<RespCustomer> getCustomerById(ReqCustomer reqCustomer) {
         Response<RespCustomer> response = new Response<>();
         RespCustomer respCustomer = new RespCustomer();
+
         try {
+            Long customerId = reqCustomer.getCustomerId();
+            ReqToken reqToken = reqCustomer.getReqToken();
+            utility.checkToken(reqToken.getToken(), reqToken.getUserId());
             if (customerId == null) {
                 throw new BankException(ExceptionConstants.INVALID_REQUEST_DATA, "Invalid ");
             }
@@ -81,6 +94,8 @@ public class CustomerServiceImpl implements CustomerService {
             if (name == null || surname == null) {
                 throw new BankException(ExceptionConstants.INVALID_REQUEST_DATA, "INVALID REQUEST DATA");
             }
+            ReqToken reqToken = reqCustomer.getReqToken();
+            utility.checkToken(reqToken.getToken(), reqToken.getUserId());
             Customers customers = Customers.builder()
                     .name(name)
                     .surname(surname)
@@ -115,6 +130,8 @@ public class CustomerServiceImpl implements CustomerService {
                 throw new BankException(ExceptionConstants.INVALID_REQUEST_DATA, "INVALID REQUEST DATA");
             }
 
+            ReqToken reqToken = reqCustomer.getReqToken();
+            utility.checkToken(reqToken.getToken(), reqToken.getUserId());
             Customers customers = customerRepository.findByIdAndActive(customerId, EnumAviableStatus.ACTIVE.value);
             if (customers == null) {
                 throw new BankException(ExceptionConstants.CUSTOMER_NOT_FOUND, "CUSTOMER NOT FOUND");
@@ -143,9 +160,12 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public Response deleteCustomer(Long customerId) {
+    public Response deleteCustomer(ReqCustomer reqCustomer) {
         Response response = new Response();
         try {
+            Long customerId=reqCustomer.getCustomerId();
+            ReqToken reqToken = reqCustomer.getReqToken();
+            utility.checkToken(reqToken.getToken(), reqToken.getUserId());
 
             if (customerId == null) {
                 throw new BankException(ExceptionConstants.INVALID_REQUEST_DATA, "INVALID REQUEST DATA");
