@@ -1,6 +1,7 @@
 package az.orient.bank.service.impl;
 
 import az.orient.bank.dto.request.ReqAccount;
+import az.orient.bank.dto.request.ReqToken;
 import az.orient.bank.dto.response.RespAccount;
 import az.orient.bank.dto.response.RespCustomer;
 import az.orient.bank.dto.response.RespStatus;
@@ -14,6 +15,7 @@ import az.orient.bank.repository.AccountRepository;
 import az.orient.bank.repository.CustomerRepository;
 import az.orient.bank.service.AccountService;
 import az.orient.bank.service.CustomerService;
+import az.orient.bank.util.Utility;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -25,11 +27,15 @@ import java.util.stream.Collectors;
 public class AccountServiceImpl implements AccountService {
     private final AccountRepository accountRepository;
     private final CustomerRepository customerRepository;
+    private final Utility utility;
 
     @Override
-    public Response<List<RespAccount>> GetAccountListByCustomerId(Long custId) {
+    public Response<List<RespAccount>> GetAccountListByCustomerId(ReqAccount reqAccount) {
         Response<List<RespAccount>> response = new Response<>();
         try {
+            Long custId = reqAccount.getCustomerId();
+            ReqToken reqToken = reqAccount.getReqToken();
+            utility.checkToken(reqToken.getToken(), reqToken.getUserId());
             if (custId == null) {
                 throw new BankException(ExceptionConstants.INVALID_REQUEST_DATA, "Invalid Request Data");
             }
@@ -61,6 +67,8 @@ public class AccountServiceImpl implements AccountService {
     public Response addAccount(ReqAccount reqAccount) {
         Response response = new Response();
         try {
+            ReqToken reqToken = reqAccount.getReqToken();
+            utility.checkToken(reqToken.getToken(), reqToken.getUserId());
 
 
             String name = reqAccount.getName();
@@ -76,14 +84,7 @@ public class AccountServiceImpl implements AccountService {
             if (customerId == null) {
                 throw new BankException(ExceptionConstants.CUSTOMER_NOT_FOUND, "Customer not found");
             }
-            Account account = Account.builder()
-                    .name(name)
-                    .accountNo(accountNo)
-                    .iban(iban)
-                    .currency(currency)
-                    .branchNo(branchNo)
-                    .customers(customers)
-                    .build();
+            Account account = Account.builder().name(name).accountNo(accountNo).iban(iban).currency(currency).branchNo(branchNo).customers(customers).build();
 
             accountRepository.save(account);
             response.setStatus(RespStatus.getSuccessMessage());
@@ -98,20 +99,17 @@ public class AccountServiceImpl implements AccountService {
         return response;
     }
 
+    @Override
+    public Account getAccountById(Long accId) {
+        Account account = accountRepository.findAccountByIdAndActive(accId, EnumAviableStatus.ACTIVE.value);
+        if (account == null) {
+            throw new BankException(ExceptionConstants.ACCOUNT_NOT_FOUND, "Account not found");
+        }
+        return account;
+    }
+
     private RespAccount mapping(Account account) {
-        RespCustomer respCustomer = RespCustomer.builder()
-                .id(account.getCustomers().getId())
-                .name(account.getCustomers().getName())
-                .surname(account.getCustomers().getSurname())
-                .build();
-        return RespAccount.builder()
-                .accountId(account.getId())
-                .name(account.getName())
-                .acccountNo(account.getAccountNo())
-                .iban(account.getIban())
-                .currency(account.getCurrency())
-                .branchNo(account.getBranchNo())
-                .respCustomer(respCustomer)
-                .build();
+        RespCustomer respCustomer = RespCustomer.builder().id(account.getCustomers().getId()).name(account.getCustomers().getName()).surname(account.getCustomers().getSurname()).address(account.getCustomers().getAddress()).dob(account.getCustomers().getDob()).pin(account.getCustomers().getPin()).phone(account.getCustomers().getPhone()).seria(account.getCustomers().getSeria()).build();
+        return RespAccount.builder().accountId(account.getId()).name(account.getName()).accountNo(account.getAccountNo()).iban(account.getIban()).currency(account.getCurrency()).branchNo(account.getBranchNo()).respCustomer(respCustomer).build();
     }
 }
