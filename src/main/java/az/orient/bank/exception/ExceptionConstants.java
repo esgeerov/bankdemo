@@ -9,5 +9,7 @@ public final class ExceptionConstants {
 
     public static final Integer INVALID_USER =104 ;
     public static final Integer INVALID_TOKEN = 105;
-    public static final Integer TOKEN_EXPIRED =106; ;
+    public static final Integer TOKEN_EXPIRED =106;
+    public static final Integer TRANSACTION_NOT_FOUND = 107;
+    ;
 }

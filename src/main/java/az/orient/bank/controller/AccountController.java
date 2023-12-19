@@ -15,16 +15,18 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AccountController {
     private final AccountService accountService;
-    @GetMapping("/GetAccountListByCustomerId/{custId}")
-    public Response<List<RespAccount>> GetAccountListByCustomerId(@PathVariable Long custId){
 
-        return accountService.GetAccountListByCustomerId(custId);
+    @GetMapping("/GetAccountListByCustomerId")
+    public Response<List<RespAccount>> GetAccountListByCustomerId(@RequestBody ReqAccount reqAccount) {
+
+        return accountService.GetAccountListByCustomerId(reqAccount);
     }
+
     @PostMapping("/addAccount")
-    public Response addAccount(@RequestBody ReqAccount reqAccount){
+    public Response addAccount(@RequestBody ReqAccount reqAccount) {
+
         return accountService.addAccount(reqAccount);
     }
-
 
 
 }

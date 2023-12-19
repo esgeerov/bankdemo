@@ -11,15 +11,17 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/user")
 @RequiredArgsConstructor
-public class UserController {
+
+public class UserController{
     private final UserService userService;
 
+
     @PostMapping("/login")
-    public Response<RespUser> login(@RequestBody ReqLogin reqLogin) {
+    public Response<RespUser> login(@RequestBody ReqLogin reqLogin){
         return userService.login(reqLogin);
     }
 
-    @PostMapping("logout")
+    @PostMapping("/logout")
     public Response logout(@RequestBody ReqToken reqToken) {
         return userService.logout(reqToken);
     }

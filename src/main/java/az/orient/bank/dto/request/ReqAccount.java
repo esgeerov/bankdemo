@@ -11,4 +11,5 @@ public class ReqAccount {
     private String currency;
     private Integer branchNo;
     private Long customerId;
+    private ReqToken reqToken;
 }
