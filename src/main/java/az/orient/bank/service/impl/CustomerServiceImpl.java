@@ -35,8 +35,6 @@ public class CustomerServiceImpl implements CustomerService {
         List<RespCustomer> respCustomerList = null;
         try {
             utility.checkToken(reqToken.getToken(), reqToken.getUserId());
-
-
             List<Customers> customersList = customerRepository.findAllByActive(EnumAviableStatus.ACTIVE.value);
             if (customersList.isEmpty()) {
                 throw new BankException(ExceptionConstants.CUSTOMER_NOT_FOUND, "Customer not found");
@@ -163,7 +161,7 @@ public class CustomerServiceImpl implements CustomerService {
     public Response deleteCustomer(ReqCustomer reqCustomer) {
         Response response = new Response();
         try {
-            Long customerId=reqCustomer.getCustomerId();
+            Long customerId = reqCustomer.getCustomerId();
             ReqToken reqToken = reqCustomer.getReqToken();
             utility.checkToken(reqToken.getToken(), reqToken.getUserId());
 
